@@ -21,7 +21,7 @@
 q   w   e   r   t       y   u   i   o   p
 a   s   d   f   g       h   j   k   l   ;
 z   x   c   v   b       n   m   ,   .   /
-                   spc
+        lalt       spc          ralt
 )
 
 (defalias
@@ -59,7 +59,9 @@ z   x   c   v   b       n   m   ,   .   /
   mt_m (tap-hold-next-release 200 m ralt)
   mt_, (tap-hold-next-release 200 , rsft)
 
+  mt_lalt (tap-hold-next-release 200 tab (layer-toggle functions-symbols))
   mt_spc (tap-hold-next-release 200 spc (layer-toggle navigation-numbers))
+  mt_ralt (tap-hold-next-release 200 ret (layer-toggle functions-symbols))
 
   mt_1 (tap-hold-next-release 200 1 ralt)
   mt_4 (tap-hold-next-release 200 4 rctl)
@@ -84,26 +86,26 @@ z   x   c   v   b       n   m   ,   .   /
 _       _       _       _       _       _       _       _       _       _
 @mt_a   @mt_s   @mt_d   @mt_f   _       _       @mt_j   @mt_k   @mt_l   @mt_;
 _       _       @mt_c   @mt_v   @mt_b   @mt_n   @mt_m   @mt_,   _       _
-                                 @mt_spc
+                _                  @mt_spc              _       
 )
 
 (deflayer navigation-numbers
 ins     home    up      end     pgup    =       7       8       9       _
 caps    left    down    right   pgdn    -       @mt_4   @mt_5   @mt_6   @mt_grv
 _       _       _       _       _       0       @mt_1   2       3       \
-                                    _
+                _                   _                   _
 )
 
 (deflayer functions-symbols
 prnt        f7      f8      f9      f12     @sft=       @sft7       @sft8       @sft9       @sft;
 @mt_slck    @mt_f4  @mt_f5  @mt_f6  f11     @sft-       @mt_s4      @mt_s5      @mt_s6      @mt_sgrv
 pause       f1      f2      @mt_f3  f10     @sft0       @mt_s1      @sft2       @sft3       @sft\
-                                        _
+                    _                    _                          _
 )
 
 ;; (deflayer empty
 ;; _       _       _       _       _       _       _       _       _       _
 ;; _       _       _       _       _       _       _       _       _       _
 ;; _       _       _       _       _       _       _       _       _       _
-;;                                     _
+;;                 _                   _                   _
 ;; )
