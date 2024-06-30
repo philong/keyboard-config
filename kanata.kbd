@@ -1,0 +1,97 @@
+(defcfg
+  linux-dev-names-include (
+    "AT Translated Set 2 keyboard"
+    "Logitech K750"
+  )
+  process-unmapped-keys yes ;; required for tap-hold hold with unmapped keys?
+  ;; concurrent-tap-hold yes ;; breaks holding multiple tap-holds?
+)
+
+(defsrc
+  q   w   e   r   t       y   u   i   o   p
+  a   s   d   f   g       h   j   k   l   ;
+  z   x   c   v   b       n   m   ,   .   /
+                     spc
+)
+
+(defvar
+  tt 200  ;; tapping term
+  ltt 400 ;; long tapping term for lmet
+  lk  (q   w   e   r   t   g   z   x   c   v   b) ;; left-hand keys for attempted bilateral combinations
+  rk  (y   u   i   o   p   h   n   m   ,   .   /) ;; right-hand keys for attempted bilateral combinations
+)
+
+(defalias
+  mt_a (tap-hold-release-keys 0 $ltt a lmet $lk)
+  mt_s (tap-hold-release-keys 0 $tt s lalt $lk)
+  mt_d (tap-hold-release-keys 0 $tt d lsft $lk)
+  mt_f (tap-hold-release-keys 0 $tt f lctl $lk)
+  mt_g (tap-hold-release-keys 0 $tt g (layer-toggle functions-symbols) $lk)
+
+  mt_h (tap-hold-release-keys 0 $tt h (layer-toggle functions-symbols) $rk)
+  mt_j (tap-hold-release-keys 0 $tt j rctl $rk)
+  mt_k (tap-hold-release-keys 0 $tt k rsft $rk)
+  mt_l (tap-hold-release-keys 0 $tt l lalt $rk)
+  mt_; (tap-hold-release-keys 0 $tt ; rmet $rk)
+
+  mt_c (tap-hold-release-keys 0 $tt c lsft $lk)
+  mt_v (tap-hold-release-keys 0 $tt v ralt $lk)
+
+  mt_m (tap-hold-release-keys 0 $tt m ralt $rk)
+  mt_, (tap-hold-release-keys 0 $tt , rsft $rk)
+
+  mt_spc (tap-hold-release 0 $tt spc (layer-toggle navigation-numbers))
+
+  mt_1 (tap-hold-release-keys 0 $tt 1 ralt $rk)
+  mt_4 (tap-hold-release-keys 0 $tt 4 rctl $rk)
+  mt_5 (tap-hold-release-keys 0 $tt 5 rsft $rk)
+  mt_6 (tap-hold-release-keys 0 $tt 6 lalt $rk)
+  mt_. (tap-hold-release-keys 0 $tt . rmet $rk)
+
+  mt_s1 (tap-hold-release-keys 0 $tt S-1 ralt $rk)
+  mt_s4 (tap-hold-release-keys 0 $tt S-4 rctl $rk)
+  mt_s5 (tap-hold-release-keys 0 $tt S-5 rsft $rk)
+  mt_s6 (tap-hold-release-keys 0 $tt S-6 lalt $rk)
+  mt_grv (tap-hold-release-keys 0 $tt grv rmet $rk)
+
+  mt_f3 (tap-hold-release-keys 0 $tt f3 ralt $lk)
+  mt_f6 (tap-hold-release-keys 0 $tt f6 lctl $lk)
+  mt_f5 (tap-hold-release-keys 0 $tt f5 lsft $lk)
+  mt_f4 (tap-hold-release-keys 0 $tt f4 lalt $lk)
+  mt_slck (tap-hold-release-keys 0 $ltt slck lmet $lk)
+
+  cw (caps-word-custom
+    2000
+    (a b c d e f g h i j k l m n o ; q r s t u v w x y z)
+    (0 1 2 3 4 5 6 7 8 9 kp0 kp1 kp2 kp3 kp4 kp5 kp6 kp7 kp8 kp9 bspc del up down left rght f24)
+  )
+
+  undo (multi lctl z)
+  cut (multi lctl x)
+  copy (multi lctl c)
+  paste (multi lctl v)
+  redo (multi lctl lsft z)
+
+  [] (tap-hold $tt $tt [ ])
+)
+
+(deflayer base
+  _   _   _   _   _       _   _   _   _   _ 
+  @mt_a @mt_s @mt_d @mt_f @mt_g   @mt_h @mt_j @mt_k @mt_l @mt_; 
+  _   _   @mt_c @mt_v _       _   @mt_m @mt_, _   _ 
+                     @mt_spc
+) 
+
+(deflayer navigation-numbers
+  ins home up  end pgup    =   7   8   9   _ 
+  @cw left down right pgdn    -   @mt_4 @mt_5 @mt_6 @mt_. 
+  @undo @cut @copy @paste @redo   0   @mt_1 2   3   \ 
+                     _  
+)
+
+(deflayer functions-symbols
+  prnt f7  f8  f9  f12     S-= S-7 S-8 S-9 _ 
+  @mt_slck @mt_f4 @mt_f5 @mt_f6 f11     S-- @mt_s4 @mt_s5 @mt_s6 @[] 
+  pause f1  f2  @mt_f3 f10     S-0 @mt_s1 S-2 S-3 S-\ 
+                     _  
+)
