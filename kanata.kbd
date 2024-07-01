@@ -4,7 +4,7 @@
     "Logitech K750"
   )
   process-unmapped-keys yes ;; required for tap-hold hold with unmapped keys?
-  ;; concurrent-tap-hold yes ;; breaks holding multiple tap-holds?
+  concurrent-tap-hold yes
 )
 
 (defsrc
@@ -34,11 +34,11 @@
   mt_l (tap-hold-release-keys 0 $tt l lalt $rk)
   mt_; (tap-hold-release-keys 0 $tt ; rmet $rk)
 
-  mt_c (tap-hold-release-keys 0 $tt c lsft $lk)
-  mt_v (tap-hold-release-keys 0 $tt v ralt $lk)
+  mt_c (tap-hold-release 0 $tt c lsft)
+  mt_v (tap-hold-release 0 $tt v ralt)
 
-  mt_m (tap-hold-release-keys 0 $tt m ralt $rk)
-  mt_, (tap-hold-release-keys 0 $tt , rsft $rk)
+  mt_m (tap-hold-release 0 $tt m ralt)
+  mt_, (tap-hold-release 0 $tt , rsft)
 
   mt_spc (tap-hold-release 0 $tt spc (layer-toggle navigation-numbers))
 
