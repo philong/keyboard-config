@@ -4,7 +4,8 @@
     "Logitech K750"
   )
   process-unmapped-keys yes ;; required for tap-hold hold with unmapped keys?
-  concurrent-tap-hold yes
+  concurrent-tap-hold yes ;; breaks holding multiple tap-holds?
+  windows-altgr add-lctl-release
 )
 
 (defsrc
@@ -76,22 +77,22 @@
 )
 
 (deflayer base
-  _   _   _   _   _       _   _   _   _   _ 
-  @mt_a @mt_s @mt_d @mt_f @mt_g   @mt_h @mt_j @mt_k @mt_l @mt_; 
-  _   _   @mt_c @mt_v _       _   @mt_m @mt_, _   _ 
+  _   _   _   _   _       _   _   _   _   _
+  @mt_a @mt_s @mt_d @mt_f @mt_g   @mt_h @mt_j @mt_k @mt_l @mt_;
+  _   _   @mt_c @mt_v _       _   @mt_m @mt_, _   _
                      @mt_spc
 ) 
 
 (deflayer navigation-numbers
-  ins home up  end pgup    =   7   8   9   _ 
-  @cw left down right pgdn    -   @mt_4 @mt_5 @mt_6 @mt_. 
-  @undo @cut @copy @paste @redo   0   @mt_1 2   3   \ 
-                     _  
+  ins home up  end pgup    =   7   8   9   _
+  @cw left down right pgdn    -   @mt_4 @mt_5 @mt_6 @mt_.
+  @undo @cut @copy @paste @redo   0   @mt_1 2   3   \
+                     _
 )
 
 (deflayer functions-symbols
-  prnt f7  f8  f9  f12     S-= S-7 S-8 S-9 _ 
-  @mt_slck @mt_f4 @mt_f5 @mt_f6 f11     S-- @mt_s4 @mt_s5 @mt_s6 @[] 
-  pause f1  f2  @mt_f3 f10     S-0 @mt_s1 S-2 S-3 S-\ 
-                     _  
+  prnt f7  f8  f9  f12     S-= S-7 S-8 S-9 _
+  @mt_slck @mt_f4 @mt_f5 @mt_f6 f11     S-- @mt_s4 @mt_s5 @mt_s6 @[]
+  pause f1  f2  @mt_f3 f10     S-0 @mt_s1 S-2 S-3 S-\
+                     _
 )
