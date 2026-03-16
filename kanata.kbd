@@ -1,67 +1,154 @@
+;; Based off home-row-mod-advanced
+;; https://github.com/jtroo/kanata/blob/main/cfg_samples/home-row-mod-advanced.kbd
+
 (defcfg
   linux-dev-names-include (
     "AT Translated Set 2 keyboard"
     "Logitech K750"
+    "Framework Laptop 16 Keyboard Module - ANSI Keyboard"
   )
-  process-unmapped-keys yes ;; required for tap-hold hold with unmapped keys?
-  concurrent-tap-hold yes ;; breaks holding multiple tap-holds?
+  process-unmapped-keys yes
+  concurrent-tap-hold yes
   windows-altgr add-lctl-release
+  ;; If any key was pressed within this time, resolve tap-hold as tap immediately.
+  ;; Prevents accidental modifier activation during fast typing.
+  ;; tap-hold-require-prior-idle 150
+)
+
+;; Assign physical keys to hands. Keys not listed have no hand
+;; assignment and are governed by (unknown-hand <value>) (default: ignore).
+;; (defhands
+;;   (left  q w e r t a s d f g z x c v b)
+;;   (right y u i o p h j k l ; n m , . /))
+
+(defchordsv2
+  (c v) (layer-while-held sralt) 200 first-release ()
+  (m ,) (layer-while-held sralt) 200 first-release ()
 )
 
 (defsrc
-  q   w   e   r   t       y   u   i   o   p
-  a   s   d   f   g       h   j   k   l   ;
-  z   x   c   v   b       n   m   ,   .   /
-                     spc
+        q   w   e   r   t     y   u   i   o   p
+  caps  a   s   d   f   g     h   j   k   l   ;
+        z   x   c   v   b     n   m   ,   .   /
+                          spc
+)
+
+(deflayer base
+        q   w   e   r   t     y   u   i   o   p
+  @caps @a  @s  @d  @f  @g    @h  @j  @k  @l  @;
+        z   x   @c  @v  b     n   @m  @,  .   /
+                          @spc
+)
+
+(deflayer navigation-numbers
+        ins home up  end pgup  =   7   8   9   _
+  bspc  @caps left down right pgdn  -   @4  @5  @6  @.
+        @undo @cut @copy @paste @redo 0   @1  2   3   \
+                          _
+)
+
+(deflayer functions-symbols
+        prnt f7  f8  f9  f12   S-= S-7 S-8 S-9 _
+  @caps @slck @f4 @f5 @f6 f11   S-- @S-4 @S-5 @S-6 @[]
+        pause f1  f2  @f3 f10   S-0 @S-1 S-2 S-3 S-\
+                          spc
+)
+
+(deflayer ralt
+            @RA-q @RA-w @RA-e @RA-r RA-t  RA-y @RA-u @RA-i @RA-o RA-p
+  @caps @RA-a RA-s @RA-d RA-f RA-g  RA-h RA-j RA-k @RA-l @RA-;
+        RA-z RA-x RA-c RA-v RA-b  RA-n RA-m RA-, RA-. RA-/
+                          RA-spc
+)
+
+(deflayer sralt
+            @S-RA-q @S-RA-w @S-RA-e @S-RA-r S-RA-t S-RA-y @S-RA-u @S-RA-i @S-RA-o S-RA-p
+  @caps @S-RA-a S-RA-s @S-RA-d S-RA-f S-RA-g S-RA-h S-RA-j S-RA-k @S-RA-l @S-RA-;
+        S-RA-z S-RA-x S-RA-c S-RA-v S-RA-b S-RA-n S-RA-m S-RA-, S-RA-. S-RA-/
+                          S-RA-spc
+)
+
+
+(deflayer nomods
+        q   w   e   r   t     y   u   i   o   p
+  @caps a   s   d   f   g     h   j   k   l   ;
+        z   x   c   v   b     n   m   ,   .   /
+                          spc
+)
+
+(deffakekeys
+  to-base (layer-switch base)
 )
 
 (defvar
-  tt 200  ;; tapping term
-  ltt 400 ;; long tapping term for lmet
-  lk  (q   w   e   r   t   g   z   x   c   v   b) ;; left-hand keys for attempted bilateral combinations
-  rk  (y   u   i   o   p   h   n   m   ,   .   /) ;; right-hand keys for attempted bilateral combinations
+  ;; Note: consider using different time values for your different fingers.
+  ;; For example, your pinkies might be slower to release keys and index
+  ;; fingers faster.
+  tap-time 0
+  l-tap-time 150
+  hold-time 200
+  l-hold-time 400
+
+  left-hand-keys (
+    q w e r t
+    g ;; a s d f g
+    z x c v b
+  )
+  right-hand-keys (
+    y u i o p
+    h ;; h j k l ;
+    n m , . /
+  )
 )
 
 (defalias
-  mt_a (tap-hold-release-keys 0 $ltt a lmet $lk)
-  mt_s (tap-hold-release-keys 0 $tt s lalt $lk)
-  mt_d (tap-hold-release-keys 0 $tt d lsft $lk)
-  mt_f (tap-hold-release-keys 0 $tt f lctl $lk)
-  mt_g (tap-hold-release-keys 0 $tt g (layer-toggle functions-symbols) $lk)
+  tap (multi
+    (layer-switch nomods)
+    (on-idle-fakekey to-base tap 20)
+  )
 
-  mt_h (tap-hold-release-keys 0 $tt h (layer-toggle functions-symbols) $rk)
-  mt_j (tap-hold-release-keys 0 $tt j rctl $rk)
-  mt_k (tap-hold-release-keys 0 $tt k rsft $rk)
-  mt_l (tap-hold-release-keys 0 $tt l lalt $rk)
-  mt_; (tap-hold-release-keys 0 $tt ; rmet $rk)
+  a (tap-hold-release-keys $tap-time $l-hold-time (multi a @tap) lmet $left-hand-keys)
+  s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lalt $left-hand-keys)
+  d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lsft $left-hand-keys)
+  f (tap-hold-release-keys $tap-time $hold-time (multi f @tap) lctl $left-hand-keys)
+  j (tap-hold-release-keys $tap-time $hold-time (multi j @tap) rctl $right-hand-keys)
+  k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) rsft $right-hand-keys)
+  l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) lalt $right-hand-keys)
+  ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) rmet $right-hand-keys)
 
-  mt_c (tap-hold-release 0 $tt c lsft)
-  mt_v (tap-hold-release 0 $tt v ralt)
+  g (tap-hold-release-keys $tap-time $hold-time (multi g @tap) (layer-while-held functions-symbols) $left-hand-keys)
+  h (tap-hold-release-keys $tap-time $hold-time (multi h @tap) (layer-while-held functions-symbols) $right-hand-keys)
 
-  mt_m (tap-hold-release 0 $tt m ralt)
-  mt_, (tap-hold-release 0 $tt , rsft)
+  c (tap-hold-release-keys $tap-time $hold-time (multi c @tap) lsft $left-hand-keys)
+  v (tap-hold-release-keys $tap-time $hold-time (multi v @tap) (layer-while-held ralt) $left-hand-keys)
 
-  mt_spc (tap-hold-release 0 $tt spc (layer-toggle navigation-numbers))
+  m (tap-hold-release-keys $tap-time $hold-time (multi m @tap) (layer-while-held ralt) $right-hand-keys)
+  , (tap-hold-release-keys $tap-time $hold-time (multi , @tap) rsft $right-hand-keys)
 
-  mt_1 (tap-hold-release-keys 0 $tt 1 ralt $rk)
-  mt_4 (tap-hold-release-keys 0 $tt 4 rctl $rk)
-  mt_5 (tap-hold-release-keys 0 $tt 5 rsft $rk)
-  mt_6 (tap-hold-release-keys 0 $tt 6 lalt $rk)
-  mt_. (tap-hold-release-keys 0 $tt . rmet $rk)
+  spc (tap-hold-release $l-tap-time $hold-time (multi spc @tap) (layer-while-held navigation-numbers))
 
-  mt_s1 (tap-hold-release-keys 0 $tt S-1 ralt $rk)
-  mt_s4 (tap-hold-release-keys 0 $tt S-4 rctl $rk)
-  mt_s5 (tap-hold-release-keys 0 $tt S-5 rsft $rk)
-  mt_s6 (tap-hold-release-keys 0 $tt S-6 lalt $rk)
-  mt_grv (tap-hold-release-keys 0 $tt grv rmet $rk)
+  RA-c (tap-hold-release-keys $tap-time $hold-time RA-c lsft $left-hand-keys)
+  RA-, (tap-hold-release-keys $tap-time $hold-time RA-, rsft $right-hand-keys)
 
-  mt_f3 (tap-hold-release-keys 0 $tt f3 ralt $lk)
-  mt_f6 (tap-hold-release-keys 0 $tt f6 lctl $lk)
-  mt_f5 (tap-hold-release-keys 0 $tt f5 lsft $lk)
-  mt_f4 (tap-hold-release-keys 0 $tt f4 lalt $lk)
-  mt_slck (tap-hold-release-keys 0 $ltt slck lmet $lk)
+  1 (tap-hold-release-keys $tap-time $hold-time 1 ralt $right-hand-keys)
+  4 (tap-hold-release-keys $tap-time $hold-time 4 rctl $right-hand-keys)
+  5 (tap-hold-release-keys $tap-time $hold-time 5 rsft $right-hand-keys)
+  6 (tap-hold-release-keys $tap-time $hold-time 6 lalt $right-hand-keys)
+  . (tap-hold-release-keys $tap-time $hold-time . rmet $right-hand-keys)
 
-  cw (caps-word-custom
+  S-1 (tap-hold-release-keys $tap-time $hold-time S-1 ralt $right-hand-keys)
+  S-4 (tap-hold-release-keys $tap-time $hold-time S-4 rctl $right-hand-keys)
+  S-5 (tap-hold-release-keys $tap-time $hold-time S-5 rsft $right-hand-keys)
+  S-6 (tap-hold-release-keys $tap-time $hold-time S-6 lalt $right-hand-keys)
+  grv (tap-hold-release-keys $tap-time $hold-time grv rmet $right-hand-keys)
+
+  f3 (tap-hold-release-keys $tap-time $hold-time f3 ralt $left-hand-keys)
+  f6 (tap-hold-release-keys $tap-time $hold-time f6 lctl $left-hand-keys)
+  f5 (tap-hold-release-keys $tap-time $hold-time f5 lsft $left-hand-keys)
+  f4 (tap-hold-release-keys $tap-time $hold-time f4 lalt $left-hand-keys)
+  slck (tap-hold-release-keys $tap-time $hold-time slck lmet $left-hand-keys)
+
+  caps (caps-word-custom-toggle
     2000
     (a b c d e f g h i j k l m n o ; q r s t u v w x y z)
     (0 1 2 3 4 5 6 7 8 9 kp0 kp1 kp2 kp3 kp4 kp5 kp6 kp7 kp8 kp9 bspc del up down left rght f24)
@@ -73,26 +160,50 @@
   paste (multi lctl v)
   redo (multi lctl lsft z)
 
-  [] (tap-hold $tt $tt [ ])
-)
+  [] (tap-hold $hold-time $hold-time [ ])
 
-(deflayer base
-  _   _   _   _   _       _   _   _   _   _
-  @mt_a @mt_s @mt_d @mt_f @mt_g   @mt_h @mt_j @mt_k @mt_l @mt_;
-  _   _   @mt_c @mt_v _       _   @mt_m @mt_, _   _
-                     @mt_spc
-) 
 
-(deflayer navigation-numbers
-  ins home up  end pgup    =   7   8   9   _
-  @cw left down right pgdn    -   @mt_4 @mt_5 @mt_6 @mt_.
-  @undo @cut @copy @paste @redo   0   @mt_1 2   3   \
-                     _
-)
+  ;; à
+  RA-a (macro RA-s a)
+  S-RA-a (macro RA-s S-a)
 
-(deflayer functions-symbols
-  prnt f7  f8  f9  f12     S-= S-7 S-8 S-9 _
-  @mt_slck @mt_f4 @mt_f5 @mt_f6 f11     S-- @mt_s4 @mt_s5 @mt_s6 @[]
-  pause f1  f2  @mt_f3 f10     S-0 @mt_s1 S-2 S-3 S-\
-                     _
+  ;; â
+  RA-q (macro RA-x a)
+  S-RA-q (macro RA-x S-a)
+
+  ;; é
+  RA-d (macro RA-f k)
+  S-RA-d (macro RA-f S-k)
+
+  ;; è
+  RA-r (macro RA-s k)
+  S-RA-r (macro RA-s S-k)
+
+  ;; ê
+  RA-e (macro RA-x k)
+  S-RA-e (macro RA-x S-k)
+
+  ;; ë
+  RA-w (macro RA-g k)
+  S-RA-w (macro RA-g S-k)
+
+  ;; î
+  RA-l (macro RA-x l)
+  S-RA-l (macro RA-x S-l)
+
+  ;; ô
+  RA-; (macro RA-x ;)
+  S-RA-; (macro RA-x S-;)
+
+  ;; û
+  RA-i (macro RA-x i)
+  S-RA-i (macro RA-x S-i)
+
+  ;; ï
+  RA-o (macro RA-g l)
+  S-RA-o (macro RA-g S-l)
+
+  ;; ù
+  RA-u (macro RA-s i)
+  S-RA-u (macro RA-s S-i)
 )
