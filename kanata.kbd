@@ -5,7 +5,6 @@
   linux-dev-names-include (
     "AT Translated Set 2 keyboard"
     "Logitech K750"
-    "Framework Laptop 16 Keyboard Module - ANSI Keyboard"
   )
   process-unmapped-keys yes
   concurrent-tap-hold yes
