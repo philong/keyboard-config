@@ -56,7 +56,7 @@
 (deflayer ralt
             @RA-q @RA-w @RA-e @RA-r RA-t  RA-y @RA-u @RA-i @RA-o RA-p
   @caps @RA-a RA-s @RA-d RA-f RA-g  RA-h RA-j RA-k @RA-l @RA-;
-        RA-z RA-x RA-c RA-v RA-b  RA-n RA-m RA-, RA-. RA-/
+        RA-z RA-x @RA-c RA-v RA-b  RA-n RA-m @RA-, RA-. RA-/
                           RA-spc
 )
 
@@ -66,7 +66,6 @@
         S-RA-z S-RA-x S-RA-c S-RA-v S-RA-b S-RA-n S-RA-m S-RA-, S-RA-. S-RA-/
                           S-RA-spc
 )
-
 
 (deflayer nomods
         q   w   e   r   t     y   u   i   o   p
@@ -161,48 +160,47 @@
 
   [] (tap-hold $hold-time $hold-time [ ])
 
-
   ;; à
-  RA-a (macro RA-s a)
-  S-RA-a (macro RA-s S-a)
+  RA-a (macro (unmod ralt s) a)
+  S-RA-a (macro (unmod ralt s) S-a)
 
   ;; â
-  RA-q (macro RA-x a)
-  S-RA-q (macro RA-x S-a)
+  RA-q (macro (unmod ralt x) a)
+  S-RA-q (macro (unmod ralt x) S-a)
 
   ;; é
-  RA-d (macro RA-f k)
-  S-RA-d (macro RA-f S-k)
+  RA-d (macro (unmod ralt f) k)
+  S-RA-d (macro (unmod ralt f) S-k)
 
   ;; è
-  RA-r (macro RA-s k)
-  S-RA-r (macro RA-s S-k)
+  RA-r (macro (unmod ralt s) k)
+  S-RA-r (macro (unmod ralt s) S-k)
 
   ;; ê
-  RA-e (macro RA-x k)
-  S-RA-e (macro RA-x S-k)
+  RA-e (macro (unmod ralt x) k)
+  S-RA-e (macro (unmod ralt x) S-k)
 
   ;; ë
-  RA-w (macro RA-g k)
-  S-RA-w (macro RA-g S-k)
+  RA-w (macro (unmod ralt g) k)
+  S-RA-w (macro (unmod ralt g) S-k)
 
   ;; î
-  RA-l (macro RA-x l)
-  S-RA-l (macro RA-x S-l)
+  RA-l (macro (unmod ralt x) l)
+  S-RA-l (macro (unmod ralt x) S-l)
 
   ;; ô
-  RA-; (macro RA-x ;)
-  S-RA-; (macro RA-x S-;)
+  RA-; (macro (unmod ralt x) ;)
+  S-RA-; (macro (unmod ralt x) S-;)
 
   ;; û
-  RA-i (macro RA-x i)
-  S-RA-i (macro RA-x S-i)
+  RA-i (macro (unmod ralt x) i)
+  S-RA-i (macro (unmod ralt x) S-i)
 
   ;; ï
-  RA-o (macro RA-g l)
-  S-RA-o (macro RA-g S-l)
+  RA-o (macro (unmod ralt g) l)
+  S-RA-o (macro (unmod ralt g) S-l)
 
   ;; ù
-  RA-u (macro RA-s i)
-  S-RA-u (macro RA-s S-i)
+  RA-u (macro (unmod ralt s) i)
+  S-RA-u (macro (unmod ralt s) S-i)
 )
