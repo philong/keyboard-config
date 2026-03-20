@@ -5,6 +5,7 @@
   linux-dev-names-include (
     "AT Translated Set 2 keyboard"
     "Logitech K750"
+    "Logitech USB Receiver"
   )
   process-unmapped-keys yes
   concurrent-tap-hold yes
