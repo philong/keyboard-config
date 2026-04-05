@@ -28,49 +28,56 @@
 
 (defsrc
         q   w   e   r   t     y   u   i   o   p
-  caps  a   s   d   f   g     h   j   k   l   ;
+  caps  a   s   d   f   g     h   j   k   l   ;  '
         z   x   c   v   b     n   m   ,   .   /
                           spc
 )
 
 (deflayer base
         q   w   e   r   t     y   u   i   o   p
-  @caps @a  @s  @d  @f  @g    @h  @j  @k  @l  @;
+  @caps @a  @s  @d  @f  @g    @h  @j  @k  @l  @; _
         z   x   @c  @v  b     n   @m  @,  .   /
                           @spc
 )
 
 (deflayer navigation-numbers
-        ins home up  end pgup  =   7   8   9   _
-  bspc  @caps left down right pgdn  -   @4  @5  @6  @.
+        ins home up  end pgup  =   7   8   9   grv
+  bspc  @caps left down right pgdn  -   @4  @5  @6  @. ret
         @undo @cut @copy @paste @redo 0   @1  2   3   \
                           _
 )
 
 (deflayer functions-symbols
-        prnt f7  f8  f9  f12   S-= S-7 S-8 S-9 _
-  @caps @slck @f4 @f5 @f6 f11   S-- @S-4 @S-5 @S-6 @[]
+        prnt f7  f8  f9  f12   S-= S-7 S-8 S-9 S-grv
+  @caps @slck @f4 @f5 @f6 f11   S-- @S-4 @S-5 @S-6 @[] ret
         pause f1  f2  @f3 f10   S-0 @S-1 S-2 S-3 S-\
-                          spc
+                          ret
+)
+
+(deflayer functions-symbols-alt
+        prnt f7  f8  f9  f12   S-= S-7 S-8 S-9 S-grv
+  del   @slck @f4 @f5 @f6 f11   S-- @S-4 @S-5 @S-6 @[] ret
+        pause f1  f2  @f3 f10   S-0 @S-1 S-2 S-3 S-\
+                          esc
 )
 
 (deflayer ralt
             @RA-q @RA-w @RA-e @RA-r RA-t  RA-y @RA-u @RA-i @RA-o RA-p
-  @caps @RA-a RA-s @RA-d RA-f RA-g  RA-h RA-j RA-k @RA-l @RA-;
+  @caps @RA-a RA-s @RA-d RA-f RA-g  RA-h RA-j RA-k @RA-l @RA-; ret
         RA-z RA-x @RA-c RA-v RA-b  RA-n RA-m @RA-, RA-. RA-/
                           RA-spc
 )
 
 (deflayer sralt
             @S-RA-q @S-RA-w @S-RA-e @S-RA-r S-RA-t S-RA-y @S-RA-u @S-RA-i @S-RA-o S-RA-p
-  @caps @S-RA-a S-RA-s @S-RA-d S-RA-f S-RA-g S-RA-h S-RA-j S-RA-k @S-RA-l @S-RA-;
+  @caps @S-RA-a S-RA-s @S-RA-d S-RA-f S-RA-g S-RA-h S-RA-j S-RA-k @S-RA-l @S-RA-; ret
         S-RA-z S-RA-x S-RA-c S-RA-v S-RA-b S-RA-n S-RA-m S-RA-, S-RA-. S-RA-/
                           S-RA-spc
 )
 
 (deflayer nomods
         q   w   e   r   t     y   u   i   o   p
-  @caps a   s   d   f   g     h   j   k   l   ;
+  @caps a   s   d   f   g     h   j   k   l   ;  '
         z   x   c   v   b     n   m   ,   .   /
                           spc
 )
@@ -116,7 +123,7 @@
   ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) rmet $right-hand-keys)
 
   g (tap-hold-release-keys $tap-time $hold-time (multi g @tap) (layer-while-held functions-symbols) $left-hand-keys)
-  h (tap-hold-release-keys $tap-time $hold-time (multi h @tap) (layer-while-held functions-symbols) $right-hand-keys)
+  h (tap-hold-release-keys $tap-time $hold-time (multi h @tap) (layer-while-held functions-symbols-alt) $right-hand-keys)
 
   c (tap-hold-release-keys $tap-time $hold-time (multi c @tap) lsft $left-hand-keys)
   v (tap-hold-release-keys $tap-time $hold-time (multi v @tap) (layer-while-held ralt) $left-hand-keys)
