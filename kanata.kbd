@@ -6,6 +6,8 @@
     "AT Translated Set 2 keyboard"
     "Logitech K750"
     "Logitech USB Receiver"
+    "Keychron K1 SE"
+    ;; "Framework Laptop 16 Keyboard Module - ANSI Keyboard"
   )
   process-unmapped-keys yes
   concurrent-tap-hold yes
@@ -22,8 +24,8 @@
 ;;   (right y u i o p h j k l ; n m , . /))
 
 (defchordsv2
-  (c v) (layer-while-held sralt) 200 first-release ()
-  (m ,) (layer-while-held sralt) 200 first-release ()
+  (c v) (layer-while-held sralt) 50 first-release ()
+  (m ,) (layer-while-held sralt) 50 first-release ()
 )
 
 (defsrc
@@ -34,9 +36,9 @@
 )
 
 (deflayer base
-        q   w   e   r   t     y   u   i   o   p
-  @caps @a  @s  @d  @f  @g    @h  @j  @k  @l  @; _
-        z   x   @c  @v  b     n   @m  @,  .   /
+        @pm-q @pm-w @pm-e @pm-r @pm-t   @pm-y @pm-u @pm-i @pm-o p
+  @caps @a    @s    @d    @f    @g      @h    @j    @k    @l    @;  @pm-quot
+        @pm-z @pm-x @c    @v    @pm-b   @pm-n @m    @,    .     @pm-slsh
                           @spc
 )
 
@@ -76,9 +78,9 @@
 )
 
 (deflayer nomods
-        q   w   e   r   t     y   u   i   o   p
-  @caps a   s   d   f   g     h   j   k   l   ;  '
-        z   x   c   v   b     n   m   ,   .   /
+        @pm-q @pm-w @pm-e @pm-r @pm-t   @pm-y @pm-u @pm-i @pm-o p
+  @caps @pm-a @pm-s @pm-d @pm-f @pm-g   @pm-h @pm-j @pm-k @pm-l @pm-scln @pm-quot
+        @pm-z @pm-x @pm-c @pm-v @pm-b   @pm-n @pm-m ,     .     @pm-slsh
                           spc
 )
 
@@ -94,6 +96,8 @@
   l-tap-time 150
   hold-time 200
   l-hold-time 400
+  ;; Same as ONESHOT_TIMEOUT in the QMK keymap
+  punct-timeout 2000
 
   left-hand-keys (
     q w e r t
@@ -107,28 +111,119 @@
   )
 )
 
+;; ============================================================
+;; Punctuation mod:
+;; "," or ";" typed before a letter acts as a oneshot mod on it:
+;;   ",a"  -> "A" (Shift)
+;;   ";a"  -> à   (AltGr accent on the custom Colemak host)
+;;   ";;a" / ",;a" / ";,a" -> À (Shift+AltGr)
+;; The punctuation is typed immediately and backspaced when a letter
+;; follows within punct-timeout, so it stays plain punctuation otherwise.
+;; ",," escapes to a literal ",,".
+;; Implemented with key-history, which tracks *outputs*: a "," resolved as
+;; home-row Shift never counts, and any other key typed in between
+;; naturally cancels the pending mod (like QMK resetting the counts).
+;; Reminder: physical p is ";" and physical ; is "o" on the Colemak host.
+
+;; Targets without a custom accent: AltGr falls through to the
+;; host's AltGr+letter mapping.
+(deftemplate punct (key skey rakey srakey)
+  (switch
+    ;; With real mods active, act as the plain key.
+    ((or lctl rctl lalt ralt lmet rmet lsft rsft)) $key break
+    ;; ",," escaped: stay plain.
+    ((and (key-history , 1) (key-history , 2))) $key break
+    ;; ";;" / ",;" / ";," -> Shift+AltGr
+    ((and (or (and (key-history p 1) (key-history p 2))
+              (and (key-history p 1) (key-history , 2))
+              (and (key-history , 1) (key-history p 2)))
+          (key-timing 2 less-than $punct-timeout)))
+      (macro bspc bspc $srakey) break
+    ;; ";" -> AltGr
+    ((and (key-history p 1) (key-timing 1 less-than $punct-timeout)))
+      (macro bspc $rakey) break
+    ;; "," -> Shift
+    ((and (key-history , 1) (key-timing 1 less-than $punct-timeout)))
+      (macro bspc $skey) break
+    () $key break
+  )
+)
+
+;; Targets with a custom accent, sent as dead key + letter like the
+;; @RA- aliases. The delays keep the event order correct around unmod.
+(deftemplate punct-acc (key skey dead letter sletter)
+  (switch
+    ((or lctl rctl lalt ralt lmet rmet lsft rsft)) $key break
+    ((and (key-history , 1) (key-history , 2))) $key break
+    ((and (or (and (key-history p 1) (key-history p 2))
+              (and (key-history p 1) (key-history , 2))
+              (and (key-history , 1) (key-history p 2)))
+          (key-timing 2 less-than $punct-timeout)))
+      (macro bspc bspc 5 (unmod ralt $dead) 5 $sletter) break
+    ((and (key-history p 1) (key-timing 1 less-than $punct-timeout)))
+      (macro bspc 5 (unmod ralt $dead) 5 $letter) break
+    ((and (key-history , 1) (key-timing 1 less-than $punct-timeout)))
+      (macro bspc $skey) break
+    () $key break
+  )
+)
+
+(defalias
+  ;; Targets: (t! punct-acc key S-key dead letter S-letter)
+  ;;       or (t! punct     key S-key AltGr-key S-AltGr-key)
+  pm-q (t! punct-acc q S-q x a S-a)     ;; â
+  pm-w (t! punct-acc w S-w g k S-k)     ;; ë
+  pm-e (t! punct-acc e S-e x k S-k)     ;; ê
+  pm-r (t! punct-acc r S-r s k S-k)     ;; è
+  pm-t (t! punct t S-t RA-t S-RA-t)
+  pm-y (t! punct y S-y RA-y S-RA-y)
+  pm-u (t! punct-acc u S-u s i S-i)     ;; ù
+  pm-i (t! punct-acc i S-i x i S-i)     ;; û
+  pm-o (t! punct-acc o S-o g l S-l)     ;; ï
+  pm-a (t! punct-acc a S-a s a S-a)     ;; à
+  pm-s (t! punct s S-s RA-s S-RA-s)
+  pm-d (t! punct-acc d S-d f k S-k)     ;; é
+  pm-f (t! punct f S-f RA-f S-RA-f)
+  pm-g (t! punct g S-g RA-g S-RA-g)
+  pm-h (t! punct h S-h RA-h S-RA-h)
+  pm-j (t! punct j S-j RA-j S-RA-j)
+  pm-k (t! punct k S-k RA-k S-RA-k)
+  pm-l (t! punct-acc l S-l x l S-l)     ;; î
+  pm-scln (t! punct-acc ; S-; x ; S-;)  ;; ô (physical ; is "o")
+  pm-quot (t! punct ' S-' RA-' S-RA-')
+  pm-z (t! punct z S-z RA-z S-RA-z)
+  pm-x (t! punct x S-x RA-x S-RA-x)
+  pm-c (t! punct c S-c RA-c S-RA-c)
+  pm-v (t! punct v S-v RA-v S-RA-v)
+  pm-b (t! punct b S-b RA-b S-RA-b)
+  pm-n (t! punct n S-n RA-n S-RA-n)
+  pm-m (t! punct m S-m RA-m S-RA-m)
+  pm-slsh (t! punct / S-/ RA-/ S-RA-/)
+)
+;; ============================================================
+
 (defalias
   tap (multi
     (layer-switch nomods)
     (on-idle-fakekey to-base tap 20)
   )
 
-  a (tap-hold-release-keys $tap-time $l-hold-time (multi a @tap) lmet $left-hand-keys)
-  s (tap-hold-release-keys $tap-time $hold-time (multi s @tap) lalt $left-hand-keys)
-  d (tap-hold-release-keys $tap-time $hold-time (multi d @tap) lsft $left-hand-keys)
-  f (tap-hold-release-keys $tap-time $hold-time (multi f @tap) lctl $left-hand-keys)
-  j (tap-hold-release-keys $tap-time $hold-time (multi j @tap) rctl $right-hand-keys)
-  k (tap-hold-release-keys $tap-time $hold-time (multi k @tap) rsft $right-hand-keys)
-  l (tap-hold-release-keys $tap-time $hold-time (multi l @tap) lalt $right-hand-keys)
-  ; (tap-hold-release-keys $tap-time $hold-time (multi ; @tap) rmet $right-hand-keys)
+  a (tap-hold-release-keys $tap-time $l-hold-time (multi @pm-a @tap) lmet $left-hand-keys)
+  s (tap-hold-release-keys $tap-time $hold-time (multi @pm-s @tap) lalt $left-hand-keys)
+  d (tap-hold-release-keys $tap-time $hold-time (multi @pm-d @tap) lsft $left-hand-keys)
+  f (tap-hold-release-keys $tap-time $hold-time (multi @pm-f @tap) lctl $left-hand-keys)
+  j (tap-hold-release-keys $tap-time $hold-time (multi @pm-j @tap) rctl $right-hand-keys)
+  k (tap-hold-release-keys $tap-time $hold-time (multi @pm-k @tap) rsft $right-hand-keys)
+  l (tap-hold-release-keys $tap-time $hold-time (multi @pm-l @tap) lalt $right-hand-keys)
+  ; (tap-hold-release-keys $tap-time $hold-time (multi @pm-scln @tap) rmet $right-hand-keys)
 
-  g (tap-hold-release-keys $tap-time $hold-time (multi g @tap) (layer-while-held functions-symbols) $left-hand-keys)
-  h (tap-hold-release-keys $tap-time $hold-time (multi h @tap) (layer-while-held functions-symbols-alt) $right-hand-keys)
+  g (tap-hold-release-keys $tap-time $hold-time (multi @pm-g @tap) (layer-while-held functions-symbols) $left-hand-keys)
+  h (tap-hold-release-keys $tap-time $hold-time (multi @pm-h @tap) (layer-while-held functions-symbols-alt) $right-hand-keys)
 
-  c (tap-hold-release-keys $tap-time $hold-time (multi c @tap) lsft $left-hand-keys)
-  v (tap-hold-release-keys $tap-time $hold-time (multi v @tap) (layer-while-held ralt) $left-hand-keys)
+  c (tap-hold-release-keys $tap-time $hold-time (multi @pm-c @tap) lsft $left-hand-keys)
+  v (tap-hold-release-keys $tap-time $hold-time (multi @pm-v @tap) (layer-while-held ralt) $left-hand-keys)
 
-  m (tap-hold-release-keys $tap-time $hold-time (multi m @tap) (layer-while-held ralt) $right-hand-keys)
+  m (tap-hold-release-keys $tap-time $hold-time (multi @pm-m @tap) (layer-while-held ralt) $right-hand-keys)
   , (tap-hold-release-keys $tap-time $hold-time (multi , @tap) rsft $right-hand-keys)
 
   spc (tap-hold-release $l-tap-time $hold-time (multi spc @tap) (layer-while-held navigation-numbers))
