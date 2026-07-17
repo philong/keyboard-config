@@ -23,9 +23,13 @@
 ;;   (left  q w e r t a s d f g z x c v b)
 ;;   (right y u i o p h j k l ; n m , . /))
 
+;; Capital accents: same-hand c+v / m+, stack shift over the AltGr layer.
+;; Game mode toggle: q+z pressed together. Also active on the game
+;; layer itself, so the same chord toggles back.
 (defchordsv2
-  (c v) (layer-while-held sralt) 50 first-release ()
-  (m ,) (layer-while-held sralt) 50 first-release ()
+  (c v) (multi lsft (layer-while-held ralt)) 50 first-release (game)
+  (m ,) (multi rsft (layer-while-held ralt)) 50 first-release (game)
+  (q z) (on-press-fakekey game-mode toggle) 50 first-release ()
 )
 
 (defsrc
@@ -64,17 +68,10 @@
 )
 
 (deflayer ralt
-            @RA-q @RA-w @RA-e @RA-r RA-t  RA-y @RA-u @RA-i @RA-o RA-p
+            @RA-q @RA-w @RA-e @RA-r RA-t  RA-y @RA-u @RA-i @RA-o @RA-p
   @caps @RA-a RA-s @RA-d RA-f RA-g  RA-h RA-j RA-k @RA-l @RA-; ret
         RA-z RA-x @RA-c RA-v RA-b  RA-n RA-m @RA-, RA-. RA-/
                           RA-spc
-)
-
-(deflayer sralt
-            @S-RA-q @S-RA-w @S-RA-e @S-RA-r S-RA-t S-RA-y @S-RA-u @S-RA-i @S-RA-o S-RA-p
-  @caps @S-RA-a S-RA-s @S-RA-d S-RA-f S-RA-g S-RA-h S-RA-j S-RA-k @S-RA-l @S-RA-; ret
-        S-RA-z S-RA-x S-RA-c S-RA-v S-RA-b S-RA-n S-RA-m S-RA-, S-RA-. S-RA-/
-                          S-RA-spc
 )
 
 (deflayer nomods
@@ -84,8 +81,18 @@
                           spc
 )
 
+;; Game mode: plain keys, no tap-holds (like the QMK _GAME layer).
+(deflayer game
+        q   w   e   r   t     y   u   i   o   p
+  caps  a   s   d   f   g     h   j   k   l   ;  '
+        z   x   c   v   b     n   m   ,   .   /
+                          spc
+)
+
 (deffakekeys
   to-base (layer-switch base)
+  ;; Toggled by the q+z chord: while "pressed", the game layer is held.
+  game-mode (layer-while-held game)
 )
 
 (defvar
@@ -108,6 +115,14 @@
     y u i o p
     h ;; h j k l ;
     n m , . /
+  )
+  ;; For a (lmet): also force an early tap on physical u (host letter L),
+  ;; so rolling "al" never emits Gui+L and locks the screen.
+  lmet-tap-keys (
+    q w e r t
+    g
+    z x c v b
+    u
   )
 )
 
@@ -208,14 +223,14 @@
     (on-idle-fakekey to-base tap 20)
   )
 
-  a (tap-hold-release-keys $tap-time $l-hold-time (multi @pm-a @tap) lmet $left-hand-keys)
+  a (tap-hold-release-keys $tap-time $l-hold-time (multi @pm-a @tap) lmet $lmet-tap-keys)
   s (tap-hold-release-keys $tap-time $hold-time (multi @pm-s @tap) lalt $left-hand-keys)
   d (tap-hold-release-keys $tap-time $hold-time (multi @pm-d @tap) lsft $left-hand-keys)
   f (tap-hold-release-keys $tap-time $hold-time (multi @pm-f @tap) lctl $left-hand-keys)
   j (tap-hold-release-keys $tap-time $hold-time (multi @pm-j @tap) rctl $right-hand-keys)
   k (tap-hold-release-keys $tap-time $hold-time (multi @pm-k @tap) rsft $right-hand-keys)
   l (tap-hold-release-keys $tap-time $hold-time (multi @pm-l @tap) lalt $right-hand-keys)
-  ; (tap-hold-release-keys $tap-time $hold-time (multi @pm-scln @tap) rmet $right-hand-keys)
+  ; (tap-hold-release-keys $tap-time $l-hold-time (multi @pm-scln @tap) rmet $right-hand-keys)
 
   g (tap-hold-release-keys $tap-time $hold-time (multi @pm-g @tap) (layer-while-held functions-symbols) $left-hand-keys)
   h (tap-hold-release-keys $tap-time $hold-time (multi @pm-h @tap) (layer-while-held functions-symbols-alt) $right-hand-keys)
@@ -249,10 +264,14 @@
   f4 (tap-hold-release-keys $tap-time $hold-time f4 lalt $left-hand-keys)
   slck (tap-hold-release-keys $tap-time $hold-time slck lmet $left-hand-keys)
 
+  ;; Reminder: on the Colemak host, physical ; is "o" (capitalized) and
+  ;; physical p is ";" (kept unshifted: it may be a punctuation-mod prefix
+  ;; of an accented letter, so it must not break the word).
+  ;; "-" is capitalized to "_" so snake_case continues the word.
   caps (caps-word-custom-toggle
-    2000
-    (a b c d e f g h i j k l m n o ; q r s t u v w x y z)
-    (0 1 2 3 4 5 6 7 8 9 kp0 kp1 kp2 kp3 kp4 kp5 kp6 kp7 kp8 kp9 bspc del up down left rght f24)
+    5000
+    (a b c d e f g h i j k l m n o ; q r s t u v w x y z -)
+    (p 0 1 2 3 4 5 6 7 8 9 kp0 kp1 kp2 kp3 kp4 kp5 kp6 kp7 kp8 kp9 bspc del up down left rght f24)
   )
 
   undo (multi lctl z)
@@ -265,45 +284,37 @@
 
   ;; à
   RA-a (macro (unmod ralt s) a)
-  S-RA-a (macro (unmod ralt s) S-a)
 
   ;; â
   RA-q (macro (unmod ralt x) a)
-  S-RA-q (macro (unmod ralt x) S-a)
 
   ;; é
   RA-d (macro (unmod ralt f) k)
-  S-RA-d (macro (unmod ralt f) S-k)
 
   ;; è
   RA-r (macro (unmod ralt s) k)
-  S-RA-r (macro (unmod ralt s) S-k)
 
   ;; ê
   RA-e (macro (unmod ralt x) k)
-  S-RA-e (macro (unmod ralt x) S-k)
 
   ;; ë
   RA-w (macro (unmod ralt g) k)
-  S-RA-w (macro (unmod ralt g) S-k)
 
   ;; î
   RA-l (macro (unmod ralt x) l)
-  S-RA-l (macro (unmod ralt x) S-l)
 
   ;; ô
   RA-; (macro (unmod ralt x) ;)
-  S-RA-; (macro (unmod ralt x) S-;)
 
   ;; û
   RA-i (macro (unmod ralt x) i)
-  S-RA-i (macro (unmod ralt x) S-i)
 
   ;; ï
   RA-o (macro (unmod ralt g) l)
-  S-RA-o (macro (unmod ralt g) S-l)
 
   ;; ù
   RA-u (macro (unmod ralt s) i)
-  S-RA-u (macro (unmod ralt s) S-i)
+
+  ;; ü (physical p is ";")
+  RA-p (macro (unmod ralt g) i)
 )
