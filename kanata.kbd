@@ -192,8 +192,8 @@
   pm-r (t! punct-acc r S-r s k S-k)     ;; è
   pm-t (t! punct t S-t RA-t S-RA-t)
   pm-y (t! punct y S-y RA-y S-RA-y)
-  pm-u (t! punct-acc u S-u s i S-i)     ;; ù
-  pm-i (t! punct-acc i S-i x i S-i)     ;; û
+  pm-u (t! punct-acc u S-u x i S-i)     ;; û
+  pm-i (t! punct-acc i S-i s i S-i)     ;; ù
   pm-o (t! punct-acc o S-o g l S-l)     ;; ï
   pm-a (t! punct-acc a S-a s a S-a)     ;; à
   pm-s (t! punct s S-s RA-s S-RA-s)
@@ -303,17 +303,17 @@
   ;; î
   RA-l (macro (unmod ralt x) l)
 
+  ;; ï
+  RA-o (macro (unmod ralt g) l)
+
   ;; ô
   RA-; (macro (unmod ralt x) ;)
 
   ;; û
-  RA-i (macro (unmod ralt x) i)
-
-  ;; ï
-  RA-o (macro (unmod ralt g) l)
+  RA-u (macro (unmod ralt x) i)
 
   ;; ù
-  RA-u (macro (unmod ralt s) i)
+  RA-i (macro (unmod ralt s) i)
 
   ;; ü (physical p is ";")
   RA-p (macro (unmod ralt g) i)
